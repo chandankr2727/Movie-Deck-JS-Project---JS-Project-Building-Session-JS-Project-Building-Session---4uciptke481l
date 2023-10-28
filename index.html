@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Deck</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/6264bff509.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1><a href="#">Movie Deck</a></h1>
+    </header>
 
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search by name..." autocomplete="off">
+        <button id="search-button">Search</button>
+    </div>
+
+    <!-- Sorting Options -->
+    <div class="sorting-options">
+        <button id="sort-by-date">Sort by date (oldest to latest)</button>
+        <button id="sort-by-rating">Sort by rating (least to most)</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="active-tab">All</button>
+        <button class="favorite-tab">Favorites</button>
+    </div>
+
+    <!-- Movie List -->
+    <ul class="movie-list">
+        <!-- Movie Cards -->
+        <li class="movie-card">
+            <img src="https://p7.hiclipart.com/preview/122/671/707/clapperboard-computer-icons-film-clip-art-portal-thumbnail.jpg" alt="Movie Poster">
+            <h3>Movie Title</h3>
+            <p class="vote-count">vote-count</p>
+            <p class="vote-average">movie.vote-average</p>
+            <button class="favorite-icon"><i class="fa-regular fa-heart"></i></button>
+        </li>
+    </ul>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <button class="previous-page" disabled>Previous</button>
+        <span class="current-page">Current Page: 1</span>
+        <button class="next-page">Next</button>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2023 Movie Deck</p>
+    </footer>
+    <script src="./App.js"></script>
+</body>
+</html>
