@@ -149,6 +149,9 @@ header a {
     bottom: 15%;
     right: 5px;
 }
+.fav-active{
+    color: red;
+}
 
 /* Style the pagination */
 .pagination {

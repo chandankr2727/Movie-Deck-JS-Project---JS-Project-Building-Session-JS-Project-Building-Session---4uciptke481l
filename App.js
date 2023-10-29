@@ -2,18 +2,21 @@ let movies = [];
 
 let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-function fetchMovies() {
-    fetch('https://api.themoviedb.org/3/movie/top_rated?api_key=f531333d637d0c44abc85b3e74db2186&language=en-US&page=1')
+let currentPage = 1;
+
+
+function fetchMovies(currentPage) {
+    fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=f531333d637d0c44abc85b3e74db2186&language=en-US&page=${currentPage}`)
         .then(response => response.json())
         .then(data => {
             movies = data.results;
             movies.map(movie => {
-                movie.isfavorite = false;
+                movie.isfavorite = "fav-notActive";
             })
             renderMovies(movies);
         });
 }
-fetchMovies();
+fetchMovies(currentPage);
 
 function renderMovies(movies) {
     const movieList = document.querySelector('.movie-list');
@@ -27,12 +30,11 @@ function renderMovies(movies) {
         <h3>${movie.title}</h3>
         <p class="vote-count">${movie.vote_count}</p>
         <p class="vote-average">${movie.vote_average}</p>
-        <p>${movie.release_date}</p>
-        <p>${movie.popularity}</p>
-        <button class="favorite-icon" ><i class="fa-regular fa-heart" data-movie-title="${movie.title}" ></i></button>`
+        <button class="favorite-icon" ><i class="fa-regular fa-heart ${movie.isfavorite}" data-movie-title="${movie.title}" ></i></button>`
 
         movieList.appendChild(listItem);
     });
+    const icond = document.getElementById('favorite-icon');
     
     addFavoritesMovies();
 };
@@ -105,19 +107,22 @@ function addFavoritesMovies () {
     });
 
     function addToFavorites(event) {
-        event.target.style.color = "red";
+        // event.target.style.color = "red";
         const movieTitle = event.target.getAttribute('data-movie-title');
-        console.log(movieTitle);
+        console.log(event);
         const movie = findMovieByTitle(movieTitle);
         const index = favorites.indexOf(movie);
         if(movie){
             if (index === -1) {
+                movie.isfavorite = "fav-active";
                 favorites.push(movie);
             } else {
+                movie.isfavorite = "fav-notActive";
                 favorites.splice(index, 1);
             }
             localStorage.setItem('favorites', JSON.stringify(favorites));
         }
+        renderMovies(movies);
     }
 
     function findMovieByTitle(title) {
@@ -130,7 +135,7 @@ function addFavoritesMovies () {
     }
 }
 
- function renderFavorites (){
+ function renderTabs (){
     const activeTab = document.querySelector('.active-tab');
     const favoriteTab = document.querySelector('.favorite-tab');
 
@@ -150,6 +155,42 @@ function addFavoritesMovies () {
         renderMovies(favorites)
     });
 }
-renderFavorites();
+renderTabs();
+
+function pagination () {
+    const previousButton = document.querySelector('.previous-page');
+    const currentPageDisplay = document.querySelector('.current-page');
+    const nextButton = document.querySelector('.next-page');
+
+    previousButton.addEventListener('click', () => {
+        if(currentPage != 1){
+            currentPage--;
+        }
+        updateCurrentPage(currentPage);
+    });
+    nextButton.addEventListener('click', () => {
+        if(currentPage < 3){
+            currentPage++;
+        }
+        updateCurrentPage(currentPage);
+    });
+    
+    function updateCurrentPage(currentPage){
+        currentPageDisplay.textContent = `Current Page: ${currentPage}`;
+        if(currentPage === 1){
+            previousButton.disabled = true;
+        }else if(currentPage === 3){
+            nextButton.disabled = true;
+        }else{
+            previousButton.disabled = false;
+            nextButton.disabled = false;
+        }
+        fetchMovies(currentPage);
+        document.documentElement.scrollTop = 0;
+    }
+
+};
+pagination();
+
 
 
