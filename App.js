@@ -4,16 +4,14 @@ let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
 let currentPage = 1;
 
+let activeTab = "allTab";
 
 function fetchMovies(currentPage) {
     fetch(`https://api.themoviedb.org/3/movie/top_rated?api_key=f531333d637d0c44abc85b3e74db2186&language=en-US&page=${currentPage}`)
         .then(response => response.json())
         .then(data => {
             movies = data.results;
-            movies.map(movie => {
-                movie.isfavorite = "fav-notActive";
-            })
-            renderMovies(movies);
+            updateFavoriteInMovies(movies);
         });
 }
 fetchMovies(currentPage);
@@ -28,14 +26,14 @@ function renderMovies(movies) {
         listItem.innerHTML +=
         `<img src="https://image.tmdb.org/t/p/original/${movie.poster_path}" alt="Movie Poster">
         <h3>${movie.title}</h3>
-        <p class="vote-count">${movie.vote_count}</p>
-        <p class="vote-average">${movie.vote_average}</p>
-        <button class="favorite-icon" ><i class="fa-regular fa-heart ${movie.isfavorite}" data-movie-title="${movie.title}" ></i></button>`
+        <div class="movie-text">
+        <p class="vote-count">Vote: ${movie.vote_count}</p>
+        <p class="vote-average">Average: ${movie.vote_average}</p>
+        <button class="favorite-icon" ><i class="fa-regular fa-heart ${movie.isfavorite}" data-movie-title="${movie.title}" ></i></button>
+        </div>`
 
         movieList.appendChild(listItem);
-    });
-    const icond = document.getElementById('favorite-icon');
-    
+    });    
     addFavoritesMovies();
 };
 
@@ -107,52 +105,81 @@ function addFavoritesMovies () {
     });
 
     function addToFavorites(event) {
-        // event.target.style.color = "red";
         const movieTitle = event.target.getAttribute('data-movie-title');
-        console.log(event);
         const movie = findMovieByTitle(movieTitle);
-        const index = favorites.indexOf(movie);
-        if(movie){
-            if (index === -1) {
+    
+        if (movie) {
+            const id = movie.id;
+            const favoriteIndex = favorites.findIndex((product) => product.id === id);
+    
+            if (favoriteIndex !== -1) {
+                movie.isfavorite = "fav-notActive";
+                favorites.splice(favoriteIndex, 1);
+            } else {
                 movie.isfavorite = "fav-active";
                 favorites.push(movie);
-            } else {
-                movie.isfavorite = "fav-notActive";
-                favorites.splice(index, 1);
             }
+    
             localStorage.setItem('favorites', JSON.stringify(favorites));
+    
+            if (activeTab === "allTab") {
+                renderMovies(movies);
+            } else {
+                renderMovies(favorites);
+            }
         }
-        renderMovies(movies);
     }
-
+    
     function findMovieByTitle(title) {
-        for (const movie of movies) {
-            if (movie.title === title) {
-                return movie;
+        if(activeTab === "allTab"){
+            for (const movie of movies) {
+                if (movie.title === title) {
+                    return movie;
+                }
+            }
+        }else{
+            for (const movie of favorites) {
+                if (movie.title === title) {
+                    return movie;
+                }
             }
         }
         return null;
     }
 }
 
- function renderTabs (){
-    const activeTab = document.querySelector('.active-tab');
+function updateFavoriteInMovies() {
+    movies.map((movie) => {
+        const favoriteMovie = favorites.find((favMovie) => favMovie.id === movie.id);
+        if (favoriteMovie) {
+            movie.isfavorite = "fav-active";
+        }else{
+            movie.isfavorite = "fav-notActive";
+        }
+    });
+    renderMovies(movies);
+}
+
+function renderTabs (){
+    const allTab = document.querySelector('.all-tab');
     const favoriteTab = document.querySelector('.favorite-tab');
 
-    activeTab.addEventListener('click', function(){
-        activeTab.style.backgroundColor = "#333";
-        activeTab.style.color = "#fff";
+    allTab.addEventListener('click', function(){
+        allTab.style.backgroundColor = "#333";
+        allTab.style.color = "#fff";
         favoriteTab.style.backgroundColor = "#ddd";
         favoriteTab.style.color = "#333";
-        renderMovies(movies)
+        activeTab = "allTab";
+        renderMovies(movies);
     });
 
     favoriteTab.addEventListener('click', function (){
-        activeTab.style.backgroundColor = "#ddd";
-        activeTab.style.color = "#333";
+        allTab.style.backgroundColor = "#ddd";
+        allTab.style.color = "#333";
         favoriteTab.style.backgroundColor = "#333";
         favoriteTab.style.color = "#fff";
-        renderMovies(favorites)
+        activeTab = "favoriteTab";
+        renderMovies(favorites);
     });
 }
 renderTabs();
@@ -191,6 +218,3 @@ function pagination () {
 
 };
 pagination();
-
-
-
