@@ -162,8 +162,9 @@ header a {
     right: 15%;
     top: -15px;
 }
-.fav-active{
-    color: red;
+
+.fa-solid{
+    color: rgb(234, 95, 95);
 }
 
 /* Style the pagination */
@@ -196,6 +197,11 @@ header a {
     color: #333;
     padding: 10px;
     border-radius: 5px;
+}
+
+#page-limit{
+    text-align: center;
+    font-size: 14px;
 }
 
 /* Style the footer */
