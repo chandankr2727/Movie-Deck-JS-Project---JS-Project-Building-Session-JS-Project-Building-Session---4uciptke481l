@@ -102,10 +102,21 @@ sortMoviesByRating();
 
 // Function to search movies by title name
 function searchMoviesByName () {
-    function searchMovies(title) {
-        title = title.toLowerCase();
-        const filteredMovies = movies.filter(movie => movie.title.toLowerCase().includes(title));
-        renderMovies(filteredMovies);
+    // function searchMovies(title) {
+    //     title = title.toLowerCase();
+    //     const filteredMovies = movies.filter(movie => movie.title.toLowerCase().includes(title));
+    //     renderMovies(filteredMovies);
+    // }
+    const searchMovies = async (searchMovie)=>{
+        try {
+            const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${searchMovie}&api_key=f531333d637d0c44abc85b3e74db2186&include_adult=false&language=en-US&page=1`); 
+           const result = await response.json();
+            searchedMovies=result.results;
+            renderMovies(searchedMovies);
+    
+         } catch (error) {
+             console.log(error);
+         }
     }
     
     const searchButton = document.getElementById('search-button');
