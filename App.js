@@ -78,11 +78,11 @@ function sortMoviesByRating () {
     function sortByRating(movies) {
         let sortByRatingMovies;
         if(isSortedByRating){
-            sortByRatingMovies = movies.sort((a, b) => new Date(a.popularity) - new Date(b.popularity));
+            sortByRatingMovies = movies.sort((a, b) => a.vote_average - b.vote_average);
             sortByRatingButton.textContent = "Sort by rating (most to least)";
             isSortedByRating = false;
         }else{
-            sortByRatingMovies = movies.sort((a, b) => new Date(b.popularity) - new Date(a.popularity));
+            sortByRatingMovies = movies.sort((a, b) => b.vote_average - a.vote_average);
             sortByRatingButton.textContent = "Sort by rating (least to most)";
             isSortedByRating = true;
         }
@@ -102,10 +102,17 @@ sortMoviesByRating();
 
 // Function to search movies by title name
 function searchMoviesByName () {
-    function searchMovies(title) {
-        title = title.toLowerCase();
-        const filteredMovies = movies.filter(movie => movie.title.toLowerCase().includes(title));
-        renderMovies(filteredMovies);
+    const searchMovies = async (searchMovie)=>{
+        try {
+            const response = await fetch(`https://api.themoviedb.org/3/search/movie?query=${searchMovie}
+            &api_key=f531333d637d0c44abc85b3e74db2186&include_adult=false&language=en-US&page=1`); 
+            const result = await response.json();
+            movies = result.results;
+            updateFavoriteInMovies(movies)
+    
+         } catch (error) {
+            console.log(error);
+         }
     }
     
     const searchButton = document.getElementById('search-button');
@@ -113,10 +120,23 @@ function searchMoviesByName () {
     
     searchButton.addEventListener("click", () => {
         const searchText = searchInput.value;
-        searchMovies(searchText);
         activeTab = true;
         switchTabStyle(activeTab);
+        if(searchText === ''){
+            fetchMovies(currentPage);
+        }else{
+            searchMovies(searchText);
+            const allTab = document.querySelector('.all-tab');
+            allTab.style.backgroundColor = "#ddd";
+            allTab.style.color = "#333";
+        }
     });
+
+    searchInput.addEventListener("keypress", function (event){
+        if (event.key === "Enter") {
+            searchButton.click();
+          }
+    } );
 }
 searchMoviesByName();
 
@@ -130,7 +150,6 @@ function addFavoritesMovies () {
     function addToFavorites(event) {
         const movieTitle = event.target.getAttribute('data-movie-title');
         const movie = findMovieByTitle(movieTitle);
-        console.log(event.target)
         if (movie) {
             const id = movie.id;
             const favoriteIndex = favorites.findIndex((product) => product.id === id);
@@ -178,7 +197,7 @@ function addFavoritesMovies () {
 }
 
 // Function to update favorite movies in movies List
-function updateFavoriteInMovies() {
+function updateFavoriteInMovies(movies) {
     movies.map((movie) => {
         const favoriteMovie = favorites.find((favMovie) => favMovie.id === movie.id);
         if (favoriteMovie) {
@@ -198,7 +217,7 @@ function renderTabs (){
     allTab.addEventListener('click', function(){
         activeTab = true;
         switchTabStyle(activeTab);
-        renderMovies(movies);
+        fetchMovies(currentPage);
     });
 
     favoriteTab.addEventListener('click', function (){
@@ -212,6 +231,7 @@ function renderTabs (){
             renderMovies(favorites);
         }
     });
+
 }
 renderTabs();
 
@@ -247,7 +267,7 @@ function pagination () {
         updateCurrentPage(currentPage);
     });
     nextButton.addEventListener('click', () => {
-        if(currentPage < 3){
+        if(currentPage < 446){
             currentPage++;
         }
         updateCurrentPage(currentPage);
@@ -258,7 +278,7 @@ function pagination () {
         if(currentPage === 1){
             previousButton.disabled = true;
             pageLimit.textContent = "";
-        }else if(currentPage === 3){
+        }else if(currentPage === 446){
             nextButton.disabled = true;
             pageLimit.textContent = "You reached maximum page limit !";
         }else{
